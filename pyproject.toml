@@ -1,0 +1,16 @@
+[project]
+name = "niceshop"
+version = "0.1.0"
+description = "A demonstration of AI agents implemented using various frameworks"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiohttp>=3.11.14",
+    "jupyter>=1.1.1",
+    "langchain>=0.3.21",
+    "langchain-openai>=0.3.11",
+    "langgraph>=0.3.18",
+    "llama-index>=0.12.27",
+    "pydantic>=2.10.6",
+    "python-dotenv>=1.1.0",
+]

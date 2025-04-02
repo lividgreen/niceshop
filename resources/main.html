@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NiceShop.AI</title>
+    <script>
+        let sessionId = null;
+
+        async function authenticate() {
+            try {
+                let response = await fetch('/api/auth', {
+                        method: "POST"
+                    }
+                );
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                sessionId = await response.text();
+
+                document.getElementById('auth-container').innerHTML = `Authenticated! Session id: ${sessionId}`;
+                document.getElementById('chat-section').style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function sendMessage() {
+            let messageInput = document.getElementById('message-input');
+            let message = messageInput.value.trim();
+            if (!message) return;
+
+            let messagesContainer = document.getElementById('messages');
+            let sendButton = document.getElementById('send-button');
+
+            // Add client message
+            let clientMessage = document.createElement('div');
+            clientMessage.textContent = `Client: ${message}`;
+            messagesContainer.appendChild(clientMessage);
+
+            messageInput.value = '';
+            sendButton.disabled = true;
+
+            try {
+                let response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                        'Session-Id': sessionId
+                    },
+                    body: message
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                let assistantResponse = await response.text();
+
+                // Add assistant message
+                let assistantMessage = document.createElement('pre');
+                assistantMessage.textContent = `Assistant: ${assistantResponse}`;
+                messagesContainer.appendChild(assistantMessage);
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                sendButton.disabled = false;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>NiceShop.AI</h1>
+    <div id="auth-container">
+        <button onclick="authenticate()">Authenticate</button>
+    </div>
+
+    <div id="chat-section" style="display: none;">
+        <h2>Chat</h2>
+        <div id="messages"></div>
+        <input type="text" id="message-input" placeholder="Enter message">
+        <button id="send-button" onclick="sendMessage()">Send</button>
+    </div>
+</body>
+</html>
